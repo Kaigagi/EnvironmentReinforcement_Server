@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Server.Database;
+using Server.Service;
+
 
 namespace Server
 {
@@ -13,6 +18,12 @@ namespace Server
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            // Register custom services for dependency injection
+            builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<ReportService>();
+            builder.Services.AddScoped<VolunteerCaseService>();
+            // Register DbContext with PostgreSQL
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
