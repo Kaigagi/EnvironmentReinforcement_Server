@@ -6,7 +6,14 @@ namespace Server.Controllers
 {
     public class UserController : Controller
     {
-        UserService userService = new UserService();
+        private readonly UserService _userService;
+
+        // Constructor injection for UserService
+        public UserController(UserService userService)
+        {
+            _userService = userService;
+        }
+
         // GET: UserController
         public ActionResult Index()
         {
