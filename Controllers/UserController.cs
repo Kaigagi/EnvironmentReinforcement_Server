@@ -21,14 +21,13 @@ namespace Server.Controllers
 
             try
             {
-
+                return Json(userService.Validate(email, password));
             } 
             catch
             {
-                
+                return NotFound();
             }
-
-            return View();
+            
         }
 
         // GET: UserController/Create
