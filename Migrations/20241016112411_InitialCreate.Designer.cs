@@ -11,8 +11,8 @@ using Server.Database;
 namespace Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241015061226_First")]
-    partial class First
+    [Migration("20241016112411_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
