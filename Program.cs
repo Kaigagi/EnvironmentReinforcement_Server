@@ -20,6 +20,7 @@ namespace Server
             builder.Services.AddSwaggerGen();
             // Register custom services for dependency injection
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<CaseService>();
             builder.Services.AddScoped<ReportService>();
             builder.Services.AddScoped<VolunteerCaseService>();
             // Register DbContext with PostgreSQL

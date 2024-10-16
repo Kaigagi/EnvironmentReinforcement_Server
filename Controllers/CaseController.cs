@@ -1,46 +1,62 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Server.Modal;
+using Server.Service;
+using System.Text.Json;
 
 namespace Server.Controllers
 {
-    public class CaseController : Controller
+    [ApiController]
+    [Route("[controller]")]
+    public class CaseController : ControllerBase
     {
-        // GET: CaseController
-        public ActionResult Index()
+        private readonly CaseService _caseService;
+
+        public class AssignCooperatorReqBody
         {
-            return View();
+            public int cooperatorId { get; set; }
+            public int caseId { get; set; }
+        }
+
+        public CaseController(CaseService caseService)
+        {
+            _caseService = caseService;
         }
 
         // GET: CaseController/Details/5
-        public ActionResult Details(int id)
+        [HttpGet("Details/{id}")]
+        public ActionResult<string> Details(int id)
         {
-            return View();
+            return JsonSerializer.Serialize(_caseService.GetCase(id));
         }
 
-        // GET: CaseController/Create
-        public ActionResult Create()
+        [HttpGet("AllCase")]
+        public ActionResult<string> AllCase()
         {
-            return View();
+            return JsonSerializer.Serialize(_caseService.GetAllCases());
         }
 
-        // POST: CaseController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        [HttpPost("AssignCooperator")]
+        public ActionResult<string> AssignCooperator([FromBody] AssignCooperatorReqBody body)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            Case caseObj = _caseService.GetCase(body.caseId);
+            caseObj.CooperatorId = body.cooperatorId;
+            _caseService.Update(caseObj);
+            return JsonSerializer.Serialize(_caseService);
         }
 
-        public ActionResult AllCase()
+        [HttpPost("Create")]
+        public ActionResult<string> Create([FromBody] Case newCase)
         {
-            return View();
+            _caseService.Create(newCase);
+            return Ok();
+        }
+
+        [HttpPost("AssignedCases/{cooperatorId}")]
+        public ActionResult<string> AssignedCases(int cooperatorId)
+        {
+            return JsonSerializer.Serialize("Hello");
         }
     }
 }

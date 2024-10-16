@@ -1,46 +1,67 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Server.Modal;
+using Server.Service;
+using System.Text.Json;
 
 namespace Server.Controllers
 {
-    public class ReportController : Controller
+    [ApiController]
+    [Route("[controller]")]
+    public class ReportController : ControllerBase
     {
-        // GET: ReportController
-        public ActionResult Index()
+        private readonly ReportService _reportService;
+        public ReportController(ReportService reportService)
         {
-            return View();
+            _reportService = reportService;
         }
 
         // GET: ReportController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult<string> Details(int id)
         {
-            return View();
+            return JsonSerializer.Serialize(_reportService.GetReport(id));
         }
 
         // GET: ReportController/Create
-        public ActionResult Create()
+        public ActionResult<string> Create()
         {
-            return View();
+            Report newReport = new Report();
+            return JsonSerializer.Serialize(newReport);
         }
 
         // POST: ReportController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult<string> Create(IFormCollection collection)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                // Extracting the form data and mapping it to a Report object
+                Report newReport = new Report
+                {
+                    Address = collection["Address"], // Extract the 'Address' from the form
+                    Description = collection["Description"], // Extract the 'Description' from the form
+                    Email = collection["Email"] // Extract the 'Email' from the form
+                };
+                _reportService.Create(newReport);
+                return Ok();
             }
             catch
             {
-                return View();
+                return NotFound();
             }
         }
 
-        public ActionResult AllReport()
+        public ActionResult<string> AllReport()
         {
-            return View();
+            try
+            {
+                return JsonSerializer.Serialize(_reportService.GetAllReports());
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
     }
 }
