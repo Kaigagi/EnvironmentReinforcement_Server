@@ -12,6 +12,7 @@ namespace Server.Controllers
     public class CaseController : ControllerBase
     {
         private readonly CaseService _caseService;
+        private readonly VolunteerCaseService _volunteerCaseService;
 
         public class AssignCooperatorReqBody
         {
@@ -19,9 +20,10 @@ namespace Server.Controllers
             public int caseId { get; set; }
         }
 
-        public CaseController(CaseService caseService)
+        public CaseController(CaseService caseService, VolunteerCaseService volunteerCaseService)
         {
             _caseService = caseService;
+            _volunteerCaseService = volunteerCaseService;
         }
 
         // GET: CaseController/Details/5
@@ -49,6 +51,7 @@ namespace Server.Controllers
         [HttpPost("Create")]
         public ActionResult<string> Create([FromBody] Case newCase)
         {
+            newCase.Id = 0;
             _caseService.Create(newCase);
             return Ok();
         }
@@ -56,7 +59,8 @@ namespace Server.Controllers
         [HttpPost("AssignedCases/{cooperatorId}")]
         public ActionResult<string> AssignedCases(int cooperatorId)
         {
-            return JsonSerializer.Serialize("Hello");
+            Case[] caseList = _caseService.GetCaseByCooperatorId(cooperatorId);
+            return JsonSerializer.Serialize(caseList);
         }
     }
 }

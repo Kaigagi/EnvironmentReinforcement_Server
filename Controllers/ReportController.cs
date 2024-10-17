@@ -32,18 +32,12 @@ namespace Server.Controllers
         // POST: ReportController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult<string> Create(IFormCollection collection)
+        public ActionResult<string> Create([FromBody] Report report)
         {
             try
             {
-                // Extracting the form data and mapping it to a Report object
-                Report newReport = new Report
-                {
-                    Address = collection["Address"], // Extract the 'Address' from the form
-                    Description = collection["Description"], // Extract the 'Description' from the form
-                    Email = collection["Email"] // Extract the 'Email' from the form
-                };
-                _reportService.Create(newReport);
+                report.Id = 0;
+                _reportService.Create(report);
                 return Ok();
             }
             catch

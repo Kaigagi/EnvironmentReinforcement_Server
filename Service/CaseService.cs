@@ -27,6 +27,12 @@ namespace Server.Service
             return _context.Case.FirstOrDefault(c => c.Id == caseId); // Return a case with the matching ID
         }
 
+        // Read: Get a case by its ID
+        public Case[] GetCaseByCooperatorId(long cooperatorId)
+        {
+            return _context.Case.Where(c => c.CooperatorId == cooperatorId).ToArray(); // Return a case with the matching ID
+        }
+
         // Read: Get all cases
         public Case[] GetAllCases()
         {

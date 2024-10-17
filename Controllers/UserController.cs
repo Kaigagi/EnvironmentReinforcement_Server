@@ -12,23 +12,37 @@ namespace Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly VolunteerCaseService _volunteerCaseService;
+        private readonly CaseService _caseService;
+
+        public class ValidateReqBody
+        {
+            public string Email { get; set; }
+            public string Password { get; set; }
+        }
+
+        public class JoinCaseReqBody
+        {
+            public long volunteerId { get; set; }
+            public long caseId { get; set; }
+        }
 
         // Constructor injection for UserService
-        public UserController(UserService userService)
+        public UserController(UserService userService, VolunteerCaseService volunteerCaseService, CaseService caseService)
         {
             _userService = userService;
+            _volunteerCaseService = volunteerCaseService;
+            _caseService = caseService;
         }
 
         // GET: UserController/Validate/5
         [HttpPost("Validate")]
-        public ActionResult<string> Validate([FromForm] IFormCollection collection)
+        public ActionResult<string> Validate([FromBody] ValidateReqBody body)
         {
-            string email = collection["email"];
-            string password = collection["password"];
 
             try
             {
-                return JsonSerializer.Serialize(_userService.Validate(email, password));
+                return JsonSerializer.Serialize(_userService.Validate(body.Email, body.Password));
             } 
             catch
             {
@@ -39,48 +53,43 @@ namespace Server.Controllers
 
         // GET: UserController/Create
         [HttpPost("Create")]
-        public ActionResult Create([FromForm] IFormCollection collection)
+        public ActionResult Create([FromBody] User user)
         {
-            // Extract data from the form
-            User newUser = new User
-            {
-                Name = collection["Name"], // Extracting the 'Name' parameter
-                Address = collection["Address"], // Extracting the 'Address' parameter
-                Phone = collection["Phone"], // Extracting the 'Phone' parameter
-                Email = collection["Email"], // Extracting the 'Email' parameter
-                Password = collection["Password"], // Extracting the 'Password' parameter
-                Role = Enum.Parse<Role>(collection["Role"]), // Parsing 'Role' to the Role enum
-                Id = long.Parse(collection["Id"]) // Parsing 'Id' to a long
-            };
-            _userService.Create(newUser);
+            _userService.Create(user);
             return Ok();
         }
 
+        [HttpGet("AllVolunteer")]
         public ActionResult<string> AllVolunteer() 
         {
             User[] users = _userService.GetAllVolunteer();
             return JsonSerializer.Serialize(users);
         }
 
+        [HttpGet("AllVolunteer")]
         public ActionResult<string> AllCooperator()
         {
             User[] users = _userService.GetAllCooperator();
             return JsonSerializer.Serialize(users);
         }
 
-        // POST: UserController/Create
-        [HttpPost]
-        public ActionResult<string> Create()
+        [HttpGet("JoinedCase/{volunteerId}")]
+        public ActionResult<string> JoinedCase(long volunteerId)
         {
-            User newUser = new User();
-            try
+            VolunteerCase[] volunteerCase = _volunteerCaseService.GetCasesByVolunteer(volunteerId);
+            List<Case> caseList = new List<Case>();
+            foreach (var item in volunteerCase)
             {
-                return JsonSerializer.Serialize(newUser);
+                caseList.Add(_caseService.GetCase(item.caseId));
             }
-            catch
-            {
-                return NotFound();
-            }
+            return JsonSerializer.Serialize(caseList.ToArray());
+        }
+
+        [HttpPost("JoinCase")]
+        public ActionResult<string> JoinCase([FromBody] JoinCaseReqBody body)
+        {
+            _volunteerCaseService.AssignVolunteerToCase(body.volunteerId, body.caseId);
+            return Ok();
         }
     }
 }
